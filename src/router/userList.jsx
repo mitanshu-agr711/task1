@@ -7,6 +7,8 @@ const UserList = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [editUserId, setEditUserId] = useState(null);
+  const [editedUserData, setEditedUserData] = useState({ first_name: '', last_name: '', email: '' });
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -43,6 +45,38 @@ const UserList = () => {
     }
   };
 
+  const handleDelete = async (userId) => {
+    try {
+      await axios.delete(`https://reqres.in/api/users/${userId}`);
+      setUsers(users.filter(user => user.id !== userId));
+    } catch (err) {
+      console.error('Error deleting user:', err);
+      alert('Failed to delete user. Please try again.');
+    }
+  };
+
+  const handleEditClick = (user) => {
+    setEditUserId(user.id);
+    setEditedUserData({ first_name: user.first_name, last_name: user.last_name, email: user.email });
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditedUserData({ ...editedUserData, [name]: value });
+  };
+
+  const handleEditSubmit = async () => {
+    try {
+      
+      await axios.put(`https://reqres.in/api/users/${editUserId}`, editedUserData);
+      setUsers(users.map(user => (user.id === editUserId ? { ...user, ...editedUserData } : user)));
+      setEditUserId(null); 
+    } catch (err) {
+      console.error('Error updating user:', err);
+      alert('Failed to update user. Please try again.');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -70,8 +104,7 @@ const UserList = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6 text-gray-800">User List</h1>
-      
-   
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {users.map(user => (
           <div key={user.id} className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -81,18 +114,50 @@ const UserList = () => {
                 alt={`${user.first_name}'s avatar`} 
                 className="h-16 w-16 rounded-full object-cover"
               />
-              <div>
-                <h2 className="text-lg font-semibold text-gray-800">
-                  {user.first_name} {user.last_name}
-                </h2>
-                <p className="text-gray-600">{user.email}</p>
-              </div>
+              {editUserId === user.id ? (
+                <div>
+                  <input
+                    type="text"
+                    name="first_name"
+                    value={editedUserData.first_name}
+                    onChange={handleEditChange}
+                    placeholder="First Name"
+                    className="border rounded p-1 mb-1"
+                  />
+                  <input
+                    type="text"
+                    name="last_name"
+                    value={editedUserData.last_name}
+                    onChange={handleEditChange}
+                    placeholder="Last Name"
+                    className="border rounded p-1 mb-1"
+                  />
+                  <input
+                    type="email"
+                    name="email"
+                    value={editedUserData.email}
+                    onChange={handleEditChange}
+                    placeholder="Email"
+                    className="border rounded p-1 mb-1"
+                  />
+                  <button onClick={handleEditSubmit} className="bg-green-500 text-white rounded px-2 py-1">Save</button>
+                  <button onClick={() => setEditUserId(null)} className="bg-red-500 text-white rounded px-2 py-1 ml-2">Cancel</button>
+                </div>
+              ) : (
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-800">
+                    {user.first_name} {user.last_name}
+                  </h2>
+                  <p className="text-gray-600">{user.email}</p>
+                  <button onClick={() => handleEditClick(user)} className="text-blue-500 hover:underline">Edit</button>
+                  <button onClick={() => handleDelete(user.id)} className="text-red-500 hover:underline ml-2">Delete</button>
+                </div>
+              )}
             </div>
           </div>
         ))}
       </div>
 
-      
       <div className="mt-8 flex justify-center">
         <nav aria-label="Page navigation">
           <ul className="inline-flex -space-x-px text-base h-10">
@@ -107,7 +172,7 @@ const UserList = () => {
                 Previous
               </button>
             </li>
-            
+
             {[...Array(totalPages)].map((_, index) => (
               <li key={index}>
                 <button
@@ -123,13 +188,13 @@ const UserList = () => {
                 </button>
               </li>
             ))}
-            
+
             <li>
               <button
                 onClick={handleNext}
                 disabled={currentPage === totalPages}
                 className={`flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 ${
-                  currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''
+                  currentPage === totalPages ? 'opacity-50 cursor-not_allowed' : ''
                 }`}
               >
                 Next
