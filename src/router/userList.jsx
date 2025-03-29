@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Menu, X } from "lucide-react";
+import { Menu, X ,Trash2,Pencil} from "lucide-react";
 
 const UserList = () => {
   const [users, setUsers] = useState([]);
@@ -404,13 +404,13 @@ const UserList = () => {
                         onClick={() => handleEditClick(user)}
                         className="text-blue-500 hover:underline"
                       >
-                        Edit
+                          <Pencil className="w-5 h-5" />
                       </button>
                       <button
                         onClick={() => handleDeleteConfirmation(user.id)}
                         className="text-red-500 hover:underline ml-2"
                       >
-                        Delete
+                         <Trash2 className="w-5 h-5" />
                       </button>
                     </div>
                   </div>
@@ -584,7 +584,7 @@ const UserList = () => {
                 onClick={handleDelete}
                 className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
               >
-                Delete
+                  <Trash2 className="w-5 h-5" />
               </button>
             </div>
           </div>
